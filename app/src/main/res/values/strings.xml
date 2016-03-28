@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">FreqDetector</string>
+    <string name="title_activity_main_">Main_Activity</string>
+    <string name="title_activity_messenger_main">MessengerMain</string>
 </resources>
