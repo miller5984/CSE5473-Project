@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
@@ -35,6 +36,7 @@ public class Pop extends Activity implements View.OnClickListener{
 
         stop.setEnabled(false);
         play.setEnabled(false);
+        outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
 
         record.setOnClickListener(this);
         stop.setOnClickListener(this);
