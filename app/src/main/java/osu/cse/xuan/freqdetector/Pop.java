@@ -23,7 +23,7 @@ import java.io.IOException;
 public class Pop extends Activity implements View.OnClickListener {
 
 
-    Button record, send, play, stop;
+    Button record, send, play, stop, close;
     TextView boxMessage;
     private MediaRecorder myAudioRecorder;
     private String outputFile = null;
@@ -43,6 +43,7 @@ public class Pop extends Activity implements View.OnClickListener {
         stop = (Button) findViewById(R.id.stop);
         send = (Button) findViewById(R.id.send);
         play = (Button) findViewById(R.id.play);
+        close = (Button) findViewById(R.id.close);
         boxMessage = (TextView) findViewById(R.id.boxmessage);
 
         stop.setEnabled(false);
@@ -65,6 +66,7 @@ public class Pop extends Activity implements View.OnClickListener {
         stop.setOnClickListener(this);
         play.setOnClickListener(this);
         send.setOnClickListener(this);
+        close.setOnClickListener(this);
 
         myAudioRecorder = new MediaRecorder();
         myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -138,6 +140,8 @@ public class Pop extends Activity implements View.OnClickListener {
                 Toast.makeText(getApplicationContext(), "Playing Audio",
                         Toast.LENGTH_SHORT).show();
                 break;
+            case R.id.close:
+                finish();
         }
     }
 
