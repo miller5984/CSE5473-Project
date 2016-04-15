@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 
 public class Pop extends Activity implements View.OnClickListener {
@@ -57,7 +59,7 @@ public class Pop extends Activity implements View.OnClickListener {
             val = folder.mkdir();
         }
 
-        String fileName = "recording.3gp";
+        String fileName =  "recording.3gp";
 
 
 
@@ -122,6 +124,8 @@ public class Pop extends Activity implements View.OnClickListener {
             case R.id.send:
                 Toast.makeText(getApplicationContext(), "You are sending your message!",
                         Toast.LENGTH_SHORT).show();
+                         SentMessages.sentMessages.add(outputFile);
+
                 break;
 
             case R.id.play:
@@ -184,4 +188,5 @@ public class Pop extends Activity implements View.OnClickListener {
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
     }
+
 }
