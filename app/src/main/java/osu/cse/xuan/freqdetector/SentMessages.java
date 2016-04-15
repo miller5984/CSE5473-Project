@@ -14,16 +14,15 @@ import java.util.ArrayList;
 
 
 public class SentMessages extends AppCompatActivity {
-public static ArrayList<String> sentMessages = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sent_messages);
-        ListView listOfSent = (ListView) findViewById(R.id.sentList);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.row_sent_list, sentMessages);
-        listOfSent.setAdapter(adapter);
+
+
     }
 
 }

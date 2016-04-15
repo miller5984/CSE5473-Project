@@ -1,13 +1,17 @@
 package osu.cse.xuan.freqdetector;
 
 import android.app.Activity;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -19,6 +23,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -124,7 +129,14 @@ public class Pop extends Activity implements View.OnClickListener {
             case R.id.send:
                 Toast.makeText(getApplicationContext(), "You are sending your message!",
                         Toast.LENGTH_SHORT).show();
-                         SentMessages.sentMessages.add(outputFile);
+                WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                WifiInfo info = manager.getConnectionInfo();
+
+                //TODO figure out how to send to another device
+
+
+                String address = "Received from MAC: " + info.getMacAddress();
+                RecievedMessages.myList.add(address);
 
                 break;
 
