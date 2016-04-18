@@ -34,10 +34,7 @@ public class Pop extends Activity implements View.OnClickListener {
     TextView boxMessage;
     private MediaRecorder myAudioRecorder;
     private String outputFile = null;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
+
     private GoogleApiClient client;
 
     @Override
