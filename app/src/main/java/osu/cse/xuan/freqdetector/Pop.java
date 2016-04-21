@@ -41,7 +41,7 @@ import java.util.List;
 public class Pop extends Activity implements View.OnClickListener {
 
     private static String enc = "this_is_a_random_string";
-    Button record, send, play, stop, close;
+    Button record, send, play, stop, close, decrypt;
     TextView boxMessage;
     private MediaRecorder myAudioRecorder;
     private String outputFile = null;
@@ -60,7 +60,9 @@ public class Pop extends Activity implements View.OnClickListener {
         send = (Button) findViewById(R.id.send);
         play = (Button) findViewById(R.id.play);
         close = (Button) findViewById(R.id.close);
+        decrypt = (Button) findViewById(R.id.Decrypt);
         boxMessage = (TextView) findViewById(R.id.boxmessage);
+
 
         stop.setEnabled(false);
         play.setEnabled(false);
@@ -83,6 +85,7 @@ public class Pop extends Activity implements View.OnClickListener {
         play.setOnClickListener(this);
         send.setOnClickListener(this);
         close.setOnClickListener(this);
+        decrypt.setOnClickListener(this);
 
         myAudioRecorder = new MediaRecorder();
         myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -165,8 +168,21 @@ public class Pop extends Activity implements View.OnClickListener {
                 /* Write in send message code */
 
 
+
+
+
                 String address = "Received from MAC: " + info.getMacAddress();
                 RecievedMessages.myList.add(address);
+
+                break;
+
+            case R.id.Decrypt:
+                Toast.makeText(getApplicationContext(), "Decrypting File...",
+                        Toast.LENGTH_SHORT).show();
+
+                /*Decrypt Code goes here*/
+
+
 
                 break;
 
