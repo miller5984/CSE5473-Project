@@ -16,6 +16,15 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import javax.crypto.Cipher;
+
+import java.security.InvalidKeyException;
+import java.security.Key;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.interfaces.*;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -23,24 +32,27 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Pop extends Activity implements View.OnClickListener {
 
-
+    private static String enc = "this_is_a_random_string";
     Button record, send, play, stop, close;
     TextView boxMessage;
     private MediaRecorder myAudioRecorder;
     private String outputFile = null;
-
+    SecretKeySpec sks = null;
     private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popwindow);
+
 
 
         record = (Button) findViewById(R.id.record);
@@ -129,7 +141,28 @@ public class Pop extends Activity implements View.OnClickListener {
                 WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                 WifiInfo info = manager.getConnectionInfo();
 
-                //TODO figure out how to send to another device
+                /* Encrypt portion */
+
+
+                try{
+                    SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+                    sr.setSeed("This_is_definitely_a_random_string".getBytes());
+                    KeyGenerator kg = KeyGenerator.getInstance("AES");
+                    kg.init(128, sr);
+                    sks = new SecretKeySpec((kg.generateKey()).getEncoded(),"AES");
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
+                byte[] encodedBytes = null;
+                try{
+                    Cipher c = Cipher.getInstance("AES");
+                    c.init(Cipher.ENCRYPT_MODE, sks);
+                    encodedBytes = c.doFinal(enc.getBytes());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                /* Write in send message code */
 
 
                 String address = "Received from MAC: " + info.getMacAddress();

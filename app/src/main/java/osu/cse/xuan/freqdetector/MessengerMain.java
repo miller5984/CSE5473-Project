@@ -25,15 +25,15 @@ public class MessengerMain extends AppCompatActivity {
         setContentView(R.layout.activity_messenger_main);
 
 
-        FloatingActionButton message = (FloatingActionButton) findViewById(R.id.message);
-        if(message != null) {
-            message.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    startActivity(new Intent(MessengerMain.this, Pop.class));
-                }
-            });
-        }
+//        FloatingActionButton message = (FloatingActionButton) findViewById(R.id.message);
+//        if(message != null) {
+//            message.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    startActivity(new Intent(MessengerMain.this, Pop.class));
+//                }
+//            });
+//        }
 
         Button received = (Button) findViewById(R.id.recMessages);
         if(received != null) {
