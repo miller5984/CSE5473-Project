@@ -2,6 +2,7 @@ package osu.cse.xuan.freqdetector;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -9,44 +10,56 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 
-import java.security.InvalidKeyException;
-import java.security.Key;
-
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.interfaces.*;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class Pop extends Activity implements View.OnClickListener {
 
-    private static String enc = "this_is_a_random_string";
+
     Button record, send, play, stop, close;
     TextView boxMessage;
     private MediaRecorder myAudioRecorder;
     private String outputFile = null;
     SecretKeySpec sks = null;
     private GoogleApiClient client;
+    private String key;
+    SharedPreferences sharedPreferences;
+    public static final String MyPrefs = "myprefs";
+    public static final String pkey = "pkey";
+    byte[] convert;
+    byte[] encodedBytes = null;
+    byte[] decodedBytes = null;
+    byte[] decode = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +67,8 @@ public class Pop extends Activity implements View.OnClickListener {
         setContentView(R.layout.popwindow);
 
 
-
+        sharedPreferences = getSharedPreferences(MyPrefs, Context.MODE_PRIVATE);
+        key = sharedPreferences.getString("pkey", null);
         record = (Button) findViewById(R.id.record);
         stop = (Button) findViewById(R.id.stop);
         send = (Button) findViewById(R.id.send);
@@ -65,15 +79,15 @@ public class Pop extends Activity implements View.OnClickListener {
         stop.setEnabled(false);
         play.setEnabled(false);
 
-        final File folder = new File(getApplicationContext().getExternalFilesDir(null) + "/AudioFiles");
-        System.out.println(folder.toString());
-        //check if directory exists
-        boolean val = false;
-        if (!folder.exists()) {
-            val = folder.mkdir();
-        }
-
-        String fileName =  "recording.3gp";
+//        final File folder = new File(getApplicationContext().getExternalFilesDir(null) + "/AudioFiles");
+//        System.out.println(folder.toString());
+//        //check if directory exists
+//        boolean val = false;
+//        if (!folder.exists()) {
+//            val = folder.mkdir();
+//        }
+//
+//        String fileName =  "recording.3gp";
 
 
 
@@ -89,8 +103,9 @@ public class Pop extends Activity implements View.OnClickListener {
         myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
 
-        outputFile = folder + "/" + fileName;
-        System.out.println(outputFile);
+        //outputFile = folder + "/" + fileName;
+        outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
+        //System.out.println(outputFile);
         myAudioRecorder.setOutputFile(outputFile);
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -141,23 +156,38 @@ public class Pop extends Activity implements View.OnClickListener {
                 WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                 WifiInfo info = manager.getConnectionInfo();
 
+                convert = new byte[key.length() / 2];
+                for (int i = 0; i < key.length(); i += 2) {
+                    convert[i / 2] = (byte) ((Character.digit(key.charAt(i), 16) << 4)
+                            + Character.digit(key.charAt(i + 1), 16));
+                }
+                sks = new SecretKeySpec(convert, "AES");
+
                 /* Encrypt portion */
 
 
-                try{
-                    SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-                    sr.setSeed("This_is_definitely_a_random_string".getBytes());
-                    KeyGenerator kg = KeyGenerator.getInstance("AES");
-                    kg.init(128, sr);
-                    sks = new SecretKeySpec((kg.generateKey()).getEncoded(),"AES");
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                }
-                byte[] encodedBytes = null;
-                try{
+
+                try {
                     Cipher c = Cipher.getInstance("AES");
                     c.init(Cipher.ENCRYPT_MODE, sks);
-                    encodedBytes = c.doFinal(enc.getBytes());
+                    encodedBytes = c.doFinal(outputFile.getBytes());
+                    FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp"));
+                    fos.write(encodedBytes);
+                    fos.close();
+
+                    File part = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp");
+                    BufferedInputStream buf = new BufferedInputStream(new FileInputStream(part));
+                    decode = new byte[(int) part.length()];
+                    buf.read(decode);
+                    c = Cipher.getInstance("AES");
+                    c.init(Cipher.DECRYPT_MODE, sks);
+                    decodedBytes = c.doFinal(decode);
+                    FileOutputStream fos1 = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/fixed.3gp"));
+
+                    fos1.write(decodedBytes);
+                    fos1.close();
+
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -166,7 +196,7 @@ public class Pop extends Activity implements View.OnClickListener {
 
 
                 String address = "Received from MAC: " + info.getMacAddress();
-                RecievedMessages.myList.add(address);
+                ReceivedMessages.myList.add(address);
 
                 break;
 
@@ -187,7 +217,17 @@ public class Pop extends Activity implements View.OnClickListener {
                         Toast.LENGTH_SHORT).show();
                 break;
             case R.id.close:
-                finish();
+
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                String fpath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/fixed.3gp";
+                try {
+                    mediaPlayer.setDataSource(fpath);
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
         }
     }
 

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RecievedMessages extends AppCompatActivity {
+public class ReceivedMessages extends AppCompatActivity {
     public static ArrayList<String> myList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
