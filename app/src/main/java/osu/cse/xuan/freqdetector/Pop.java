@@ -426,6 +426,7 @@ public class Pop extends Activity implements View.OnClickListener {
                    String currentID = jsonData.getJSONObject(i).getString("id");
                    String currentName = jsonData.getJSONObject(i).getString("name");
 
+
                    if(!stringMap.containsKey(currentID))  {
                        stringMap.put(currentName,currentID);
                    }

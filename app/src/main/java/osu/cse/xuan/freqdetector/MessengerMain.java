@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -25,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -78,7 +80,7 @@ public class MessengerMain extends AppCompatActivity {
 
 
         //New User Button
-        final Button newUser = (Button) findViewById(R.id.addUser);
+         Button newUser = (Button) findViewById(R.id.addUser);
         if(newUser != null){
             newUser.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -122,6 +124,27 @@ public class MessengerMain extends AppCompatActivity {
                 }
             });
         }
+
+        Button checkForMessage = (Button) findViewById(R.id.checkMessages);
+        if(checkForMessage != null) {
+            checkForMessage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Toast.makeText(getApplicationContext(), "Checking for new messages...",
+                            Toast.LENGTH_SHORT).show();
+
+                    checkMessageTask myTask = new checkMessageTask();
+                    myTask.execute();
+
+
+                }
+            });
+
+        }
+
+
+
 
 
 
@@ -276,6 +299,67 @@ public class MessengerMain extends AppCompatActivity {
 
         }
 
+    }
+    public class checkMessageTask extends AsyncTask<String, String, String> {
+
+        HttpURLConnection urlConnection;
+
+        @Override
+        protected String doInBackground(String... params) {
+            StringBuilder result = new StringBuilder();
+
+            try {
+                URL url = new URL("http://tanapp.tedzhu.org/messages.php");
+                urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+
+            }catch( Exception e) {
+                e.printStackTrace();
+            }
+            finally {
+                urlConnection.disconnect();
+            }
+
+
+            return result.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
+
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MessengerMain.this);
+            String myID = pref.getString("myDeviceID",null);
+
+            try{
+            JSONArray messages = new JSONArray(s);
+
+                for(int i = 0; i < messages.length(); i++){
+                    String currentRecID = messages.getJSONObject(i).getString("recipient_device_id");
+
+                    if(currentRecID.equals(myID)){
+                        String myMessage = messages.getJSONObject(i).getString("data_text");
+                        String whoSent = messages.getJSONObject(i).getString("sender_device_id");
+                    }
+                }
+
+
+
+        }catch (Throwable t){
+            t.printStackTrace();
+        }
+
+
+
+    }
     }
 
 
