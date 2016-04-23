@@ -34,7 +34,7 @@ public class MessengerMain extends AppCompatActivity {
             sent.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startActivity(new Intent(MessengerMain.this, SentMessages.class));
+                    startActivity(new Intent(MessengerMain.this, Pop.class));
                 }
             });
         }

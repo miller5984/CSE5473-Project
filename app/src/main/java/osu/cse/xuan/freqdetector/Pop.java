@@ -1,19 +1,28 @@
 package osu.cse.xuan.freqdetector;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,9 +34,13 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.google.android.gms.appdatasearch.GetRecentContextCall;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -38,9 +51,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.Array;
+import java.util.ArrayList;
 
 
 public class Pop extends Activity implements View.OnClickListener {
@@ -60,11 +79,16 @@ public class Pop extends Activity implements View.OnClickListener {
     byte[] encodedBytes = null;
     byte[] decodedBytes = null;
     byte[] decode = null;
+    ArrayList<String> stringArray = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popwindow);
+
+        //get list of names from server
+        requestNames getNames = new requestNames();
+        getNames.execute();
 
 
         sharedPreferences = getSharedPreferences(MyPrefs, Context.MODE_PRIVATE);
@@ -151,52 +175,75 @@ public class Pop extends Activity implements View.OnClickListener {
                 break;
 
             case R.id.send:
-                Toast.makeText(getApplicationContext(), "You are sending your message!",
-                        Toast.LENGTH_SHORT).show();
-                WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-                WifiInfo info = manager.getConnectionInfo();
-
-                convert = new byte[key.length() / 2];
-                for (int i = 0; i < key.length(); i += 2) {
-                    convert[i / 2] = (byte) ((Character.digit(key.charAt(i), 16) << 4)
-                            + Character.digit(key.charAt(i + 1), 16));
-                }
-                sks = new SecretKeySpec(convert, "AES");
-
-                /* Encrypt portion */
-
-
-
-                try {
-                    Cipher c = Cipher.getInstance("AES");
-                    c.init(Cipher.ENCRYPT_MODE, sks);
-                    encodedBytes = c.doFinal(outputFile.getBytes());
-                    FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp"));
-                    fos.write(encodedBytes);
-                    fos.close();
-
-                    File part = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp");
-                    BufferedInputStream buf = new BufferedInputStream(new FileInputStream(part));
-                    decode = new byte[(int) part.length()];
-                    buf.read(decode);
-                    c = Cipher.getInstance("AES");
-                    c.init(Cipher.DECRYPT_MODE, sks);
-                    decodedBytes = c.doFinal(decode);
-                    FileOutputStream fos1 = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/fixed.3gp"));
-
-                    fos1.write(decodedBytes);
-                    fos1.close();
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
 
                 /* Write in send message code */
 
 
-                String address = "Received from MAC: " + info.getMacAddress();
-                ReceivedMessages.myList.add(address);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Select Recipient");
+
+                ListView myList = new ListView(this);
+
+                ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, stringArray);
+                myList.setAdapter(modeAdapter);
+
+                builder.setView(myList);
+                final Dialog dialog = builder.create();
+
+                dialog.show();
+                myList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String nameOfRecipient = stringArray.get(position);
+
+                        Toast.makeText(getApplicationContext(), "Sending message to: " + nameOfRecipient + "...",
+                                Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+
+
+//TODO this currently crashes the app since key is null
+
+//                convert = new byte[key.length() / 2];
+//                for (int i = 0; i < key.length(); i += 2) {
+//                    convert[i / 2] = (byte) ((Character.digit(key.charAt(i), 16) << 4)
+//                            + Character.digit(key.charAt(i + 1), 16));
+//                }
+//                sks = new SecretKeySpec(convert, "AES");
+
+
+                /* Encrypt portion */
+
+
+                        try {
+                            Cipher c = Cipher.getInstance("AES");
+                            c.init(Cipher.ENCRYPT_MODE, sks);
+                            encodedBytes = c.doFinal(outputFile.getBytes());
+                            FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp"));
+                            fos.write(encodedBytes);
+                            fos.close();
+
+                            File part = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp");
+                            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(part));
+                            decode = new byte[(int) part.length()];
+                            buf.read(decode);
+                            c = Cipher.getInstance("AES");
+                            c.init(Cipher.DECRYPT_MODE, sks);
+                            decodedBytes = c.doFinal(decode);
+                            FileOutputStream fos1 = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/fixed.3gp"));
+
+                            fos1.write(decodedBytes);
+                            fos1.close();
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                });
+
+
 
                 break;
 
@@ -227,6 +274,7 @@ public class Pop extends Activity implements View.OnClickListener {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                finish();
 
         }
     }
@@ -270,5 +318,73 @@ public class Pop extends Activity implements View.OnClickListener {
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
     }
+
+    public class requestNames extends AsyncTask<String, String, String> {
+
+        HttpURLConnection urlConnection;
+
+        ProgressDialog dialog;
+        @Override
+        protected void onPreExecute() {
+            dialog = ProgressDialog.show(Pop.this, "", "Loading Users...");
+        }
+
+
+        @Override
+        protected String doInBackground(String... args) {
+
+            StringBuilder result = new StringBuilder();
+
+            try {
+                URL url = new URL("http://tanapp.tedzhu.org/devices.php");
+                urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+
+            }catch( Exception e) {
+                e.printStackTrace();
+            }
+            finally {
+                urlConnection.disconnect();
+            }
+
+
+            return result.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            try{
+                JSONArray jsonData = new JSONArray(result);
+
+               for(int i = 0; i < jsonData.length(); i++) {
+
+                   String current = jsonData.getJSONObject(i).getString("name");
+                   if(!stringArray.contains(current)) {
+                       stringArray.add(current);
+                   }
+
+                }
+
+                dialog.dismiss();
+
+            }catch (Throwable t){
+                t.printStackTrace();
+            }
+
+
+
+        }
+
+
+        }
 
 }
