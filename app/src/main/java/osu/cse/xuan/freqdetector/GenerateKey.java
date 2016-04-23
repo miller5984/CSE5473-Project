@@ -41,14 +41,16 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
         sharedPreferences = getSharedPreferences(MyPrefs, Context.MODE_PRIVATE);
         key = new byte[16];
         checkprefs = sharedPreferences.getString("pkey", null);
+
+
         //keyText.setText(checkprefs);
-        if(checkprefs.equals(null)){
-            sendKey.setEnabled(false);
-        }
-        else{
-            keyGen.setEnabled(false);
-            sendKey.setEnabled(true);
-        }
+//        if(checkprefs.equals(null)){
+//            sendKey.setEnabled(false);
+//        }
+//        else{
+//            keyGen.setEnabled(false);
+//            sendKey.setEnabled(true);
+//        }
 
         keyGen.setOnClickListener(this);
         sendKey.setOnClickListener(this);

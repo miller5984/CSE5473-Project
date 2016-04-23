@@ -1,11 +1,17 @@
 package osu.cse.xuan.freqdetector;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SyncAdapterType;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -51,6 +57,57 @@ public class MessengerMain extends AppCompatActivity {
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+
+        //New User Button
+        final Button newUser = (Button) findViewById(R.id.addUser);
+        if(newUser != null){
+            newUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                    AlertDialog.Builder alert = new AlertDialog.Builder(MessengerMain.this);
+
+                    alert.setTitle("Add a User");
+                    alert.setMessage("Enter your Name:");
+
+                    // Set an EditText view to get user input
+                    final EditText input = new EditText(MessengerMain.this);
+                    alert.setView(input);
+
+                    alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+
+                            String myInput = input.getText().toString();
+                            //addNewUser newUserSync = new addNewUser();
+                            //newUserSync.execute(myInput);
+                        }
+                    });
+
+                    alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+
+                            dialog.dismiss();
+                        }
+                    });
+
+                    alert.show();
+
+
+
+
+
+
+
+
+                }
+            });
+        }
+
+
+
+
     }
 
     @Override
@@ -92,4 +149,28 @@ public class MessengerMain extends AppCompatActivity {
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
     }
+
+
+    public class addNewUser extends AsyncTask<String, String, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
+
+    }
+
+
+
+
+
 }

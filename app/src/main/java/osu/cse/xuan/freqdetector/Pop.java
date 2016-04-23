@@ -178,7 +178,6 @@ public class Pop extends Activity implements View.OnClickListener {
 
                 /* Write in send message code */
 
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Select Recipient");
 
@@ -318,6 +317,11 @@ public class Pop extends Activity implements View.OnClickListener {
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
     }
+
+
+
+
+
 
     public class requestNames extends AsyncTask<String, String, String> {
 
