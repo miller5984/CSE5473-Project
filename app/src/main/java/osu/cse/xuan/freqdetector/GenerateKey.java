@@ -41,7 +41,7 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
         sendKey = (Button)findViewById(R.id.sendKey);
         sharedPreferences = getSharedPreferences(MyPrefs, Context.MODE_PRIVATE);
         key = new byte[16];
-        checkprefs = sharedPreferences.getString("pkey", null);
+        checkprefs = sharedPreferences.getString(pk, null);
 
 
         //keyText.setText(checkprefs);

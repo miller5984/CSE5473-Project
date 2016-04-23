@@ -226,8 +226,8 @@ public class Pop extends Activity implements View.OnClickListener {
                 /* Encrypt portion */
 
                 try {
-                    Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
-                    c.init(Cipher.ENCRYPT_MODE, sks, ivSpec);
+                    Cipher c = Cipher.getInstance("AES");
+                    c.init(Cipher.ENCRYPT_MODE, sks);
                     encodedBytes = c.doFinal(tempMessage.getBytes());
                     sendMessage = Base64.encodeToString(encodedBytes, Base64.DEFAULT);
                 } catch (Exception e) {
