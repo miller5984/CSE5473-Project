@@ -28,7 +28,8 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
     public static final String pk = "pkey";
     SharedPreferences sharedPreferences;
     TextView keyText;
-    String checkprefs;
+    String checkprefs, keySend, keySend1, first = "25fc941a", second = "50d2ab2e", third = "e8517afd",
+    fourth = "c2492baf";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,11 +62,16 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
     public void onClick(View v){
         switch (v.getId()){
             case R.id.sendKey:
+                keySend = sharedPreferences.getString("pkey", null);
+                keySend1 = keySend.substring(0,1) + first + keySend.substring(1,5) + second
+                        + keySend.substring(5, 17) + third + keySend.substring(17, 30) + fourth
+                        + keySend.substring(30, 32);
+
+                //Send logic here
 
 
                 break;
             case R.id.genkey:
-                SecretKeySpec sks = null;
                 try{
                     KeyGenerator kg = KeyGenerator.getInstance("AES");
                     kg.init(128, new SecureRandom());

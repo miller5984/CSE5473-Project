@@ -34,6 +34,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.google.android.gms.appdatasearch.GetRecentContextCall;
@@ -87,12 +88,13 @@ public class Pop extends Activity implements View.OnClickListener {
     byte[] encodedBytes = null;
     byte[] decodedBytes = null;
     byte[] decode = null;
+    byte[] _iv = new byte[16];
     HashMap<String,String> stringMap = new HashMap<>();
 
     ArrayList<String> stringArray = new ArrayList<>();
     ArrayList<String> idArray = new ArrayList<>();
 
-    String tempMessage;
+    String tempMessage, sendMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,9 +143,9 @@ public class Pop extends Activity implements View.OnClickListener {
         myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
 
         //outputFile = folder + "/" + fileName;
-        outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
+        //outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
         //System.out.println(outputFile);
-        myAudioRecorder.setOutputFile(outputFile);
+        //myAudioRecorder.setOutputFile(outputFile);
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         int width = dm.widthPixels;
@@ -171,56 +173,66 @@ public class Pop extends Activity implements View.OnClickListener {
 //                } catch (IllegalStateException e) {
 //                    e.printStackTrace();
 //                }
-//
 //                record.setEnabled(false);
 //                stop.setEnabled(true);
 
                 android.support.v7.app.AlertDialog.Builder alert = new android.support.v7.app.AlertDialog.Builder(Pop.this);
-
                 alert.setTitle("Message");
                 alert.setMessage("Enter your Message:");
-
                 // Set an EditText view to get user input
                 final EditText input = new EditText(Pop.this);
                 alert.setView(input);
 
                 alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-
                         String message = input.getText().toString();
                         tempMessage = message;
-
-
                     }
                 });
-
                 alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-
                         dialog.dismiss();
                     }
                 });
-
                 alert.show();
 
 
 
                 break;
-            case R.id.stop:
-                Toast.makeText(getApplicationContext(), "You have made your recording!",
-                        Toast.LENGTH_SHORT).show();
-                myAudioRecorder.stop();
-                myAudioRecorder.release();
-                myAudioRecorder = null;
-
-                stop.setEnabled(false);
-                play.setEnabled(true);
-
-                break;
+//            case R.id.stop:
+//                Toast.makeText(getApplicationContext(), "You have made your recording!",
+//                        Toast.LENGTH_SHORT).show();
+//                myAudioRecorder.stop();
+//                myAudioRecorder.release();
+//                myAudioRecorder = null;
+//
+//                stop.setEnabled(false);
+//                play.setEnabled(true);
+//
+//                break;
 
             case R.id.send:
 
-                /* Write in send message code */
+                key = sharedPreferences.getString("pkey", null);
+                final IvParameterSpec ivSpec = new IvParameterSpec(_iv);
+
+                convert = new byte[key.length() / 2];
+                for (int i = 0; i < key.length(); i += 2) {
+                    convert[i / 2] = (byte) ((Character.digit(key.charAt(i), 16) << 4)
+                            + Character.digit(key.charAt(i + 1), 16));
+                }
+                sks = new SecretKeySpec(convert, "AES");
+
+                /* Encrypt portion */
+
+                try {
+                    Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                    c.init(Cipher.ENCRYPT_MODE, sks, ivSpec);
+                    encodedBytes = c.doFinal(tempMessage.getBytes());
+                    sendMessage = Base64.encodeToString(encodedBytes, Base64.DEFAULT);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Select Recipient");
@@ -242,54 +254,25 @@ public class Pop extends Activity implements View.OnClickListener {
                         Toast.makeText(getApplicationContext(), "Sending message to: " + nameOfRecipient + "...",
                                 Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
-
-
                         sendMessage sendSync = new sendMessage();
                         String idOfRec = idArray.get(position);
-                        sendSync.execute(tempMessage,nameOfRecipient,idOfRec);
+                        sendSync.execute(sendMessage,nameOfRecipient,idOfRec);
 
-
-
-
-
-//TODO this currently crashes the app since key is null
-
-//                convert = new byte[key.length() / 2];
-//                for (int i = 0; i < key.length(); i += 2) {
-//                    convert[i / 2] = (byte) ((Character.digit(key.charAt(i), 16) << 4)
-//                            + Character.digit(key.charAt(i + 1), 16));
-//                }
-//                sks = new SecretKeySpec(convert, "AES");
-
-
-                /* Encrypt portion */
-
-
-                        try {
-                            Cipher c = Cipher.getInstance("AES");
-                            c.init(Cipher.ENCRYPT_MODE, sks);
-                            encodedBytes = c.doFinal(outputFile.getBytes());
-                            FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp"));
-                            fos.write(encodedBytes);
-                            fos.close();
-
-                            File part = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp");
-                            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(part));
-                            decode = new byte[(int) part.length()];
-                            buf.read(decode);
-                            c = Cipher.getInstance("AES");
-                            c.init(Cipher.DECRYPT_MODE, sks);
-                            decodedBytes = c.doFinal(decode);
-                            FileOutputStream fos1 = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/fixed.3gp"));
-
-                            fos1.write(decodedBytes);
-                            fos1.close();
-
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
+//                            FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp"));
+//                            fos.write(encodedBytes);
+//                            fos.close();
+//
+//                            File part = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp");
+//                            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(part));
+//                            decode = new byte[(int) part.length()];
+//                            buf.read(decode);
+//                            c = Cipher.getInstance("AES");
+//                            c.init(Cipher.DECRYPT_MODE, sks);
+//                            decodedBytes = c.doFinal(decode);
+//                            FileOutputStream fos1 = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/fixed.3gp"));
+//
+//                            fos1.write(decodedBytes);
+//                            fos1.close();
 
                     }
                 });
@@ -298,33 +281,32 @@ public class Pop extends Activity implements View.OnClickListener {
 
                 break;
 
-            case R.id.play:
-                MediaPlayer m = new MediaPlayer();
-                try {
-                    m.setDataSource(outputFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    m.prepare();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                m.start();
-                Toast.makeText(getApplicationContext(), "Playing Audio",
-                        Toast.LENGTH_SHORT).show();
-                break;
+//            case R.id.play:
+//                MediaPlayer m = new MediaPlayer();
+//                try {
+//                    m.setDataSource(outputFile);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                try {
+//                    m.prepare();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                m.start();
+//                Toast.makeText(getApplicationContext(), "Playing Audio",
+//                        Toast.LENGTH_SHORT).show();
+//                break;
             case R.id.close:
-
-                MediaPlayer mediaPlayer = new MediaPlayer();
-                String fpath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/fixed.3gp";
-                try {
-                    mediaPlayer.setDataSource(fpath);
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                MediaPlayer mediaPlayer = new MediaPlayer();
+//                String fpath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/fixed.3gp";
+//                try {
+//                    mediaPlayer.setDataSource(fpath);
+//                    mediaPlayer.prepare();
+//                    mediaPlayer.start();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
                 finish();
 
         }
