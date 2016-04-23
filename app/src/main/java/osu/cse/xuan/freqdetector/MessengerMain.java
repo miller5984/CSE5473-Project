@@ -347,7 +347,8 @@ public class MessengerMain extends AppCompatActivity {
 
                     if(currentRecID.equals(myID)){
                         String myMessage = messages.getJSONObject(i).getString("data_text");
-                        String whoSent = messages.getJSONObject(i).getString("sender_device_id");
+                        //String whoSent = messages.getJSONObject(i).getString("sender_device_id");
+                        ReceivedMessages.myList.add(myMessage);
                     }
                 }
 
