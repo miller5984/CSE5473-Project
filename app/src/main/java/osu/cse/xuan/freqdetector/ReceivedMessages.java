@@ -14,7 +14,9 @@ import java.util.List;
 
 
 public class ReceivedMessages extends AppCompatActivity {
+
     public static ArrayList<String> myList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

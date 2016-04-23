@@ -39,6 +39,8 @@ import java.net.URL;
 
 public class MessengerMain extends AppCompatActivity {
 
+     private int MAX_ID_REC_ID;
+
     private GoogleApiClient client;
 
     @Override
@@ -347,8 +349,15 @@ public class MessengerMain extends AppCompatActivity {
 
                     if(currentRecID.equals(myID)){
                         String myMessage = messages.getJSONObject(i).getString("data_text");
-                        //String whoSent = messages.getJSONObject(i).getString("sender_device_id");
-                        ReceivedMessages.myList.add(myMessage);
+                        String messageID = messages.getJSONObject(i).getString("id");
+
+                        int messageIDint = Integer.parseInt(messageID);
+
+                        if(messageIDint > MAX_ID_REC_ID) {
+                            ReceivedMessages.myList.add(myMessage);
+                            MAX_ID_REC_ID = messageIDint;
+                            System.out.println("messageID: " + messageIDint + ", maxID: " + MAX_ID_REC_ID);
+                        }
                     }
                 }
 
