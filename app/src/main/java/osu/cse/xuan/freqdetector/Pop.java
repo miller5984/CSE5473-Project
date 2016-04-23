@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,10 +41,12 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,6 +56,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.InvalidKeyException;
@@ -80,6 +85,7 @@ public class Pop extends Activity implements View.OnClickListener {
     byte[] decodedBytes = null;
     byte[] decode = null;
     ArrayList<String> stringArray = new ArrayList<>();
+    String tempMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,19 +154,50 @@ public class Pop extends Activity implements View.OnClickListener {
 
         switch (v.getId()) {
             case R.id.record:
-                Toast.makeText(getApplicationContext(), "You are recording!",
-                        Toast.LENGTH_SHORT).show();
-                try {
-                    myAudioRecorder.prepare();
-                    myAudioRecorder.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (IllegalStateException e) {
-                    e.printStackTrace();
-                }
+//                Toast.makeText(getApplicationContext(), "You are recording!",
+//                        Toast.LENGTH_SHORT).show();
+//                try {
+//                    myAudioRecorder.prepare();
+//                    myAudioRecorder.start();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                } catch (IllegalStateException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                record.setEnabled(false);
+//                stop.setEnabled(true);
 
-                record.setEnabled(false);
-                stop.setEnabled(true);
+                android.support.v7.app.AlertDialog.Builder alert = new android.support.v7.app.AlertDialog.Builder(Pop.this);
+
+                alert.setTitle("Message");
+                alert.setMessage("Enter your Message:");
+
+                // Set an EditText view to get user input
+                final EditText input = new EditText(Pop.this);
+                alert.setView(input);
+
+                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        String message = input.getText().toString();
+                        tempMessage = message;
+
+
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        dialog.dismiss();
+                    }
+                });
+
+                alert.show();
+
+
+
                 break;
             case R.id.stop:
                 Toast.makeText(getApplicationContext(), "You have made your recording!",
@@ -198,6 +235,13 @@ public class Pop extends Activity implements View.OnClickListener {
                         Toast.makeText(getApplicationContext(), "Sending message to: " + nameOfRecipient + "...",
                                 Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
+
+
+                        sendMessage sendSync = new sendMessage();
+                        sendSync.execute(tempMessage);
+
+
+
 
 
 //TODO this currently crashes the app since key is null
@@ -390,5 +434,107 @@ public class Pop extends Activity implements View.OnClickListener {
 
 
         }
+
+
+    public class sendMessage extends AsyncTask<String,String,String>{
+
+        ProgressDialog sendDialog;
+
+        @Override
+        protected void onPreExecute() {
+            sendDialog = ProgressDialog.show(Pop.this, "", "Sending Message...");
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            //send message
+            String enteredMessage = params[0];
+            String JsonResponse;
+
+            //form JSON
+            JSONObject JSONEnteredMessage = new JSONObject();
+            try{
+                JSONEnteredMessage.put("type","TEXT");
+
+                JSONEnteredMessage.put("data_text",enteredMessage);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            String valueJSON = String.valueOf(JSONEnteredMessage);
+            System.out.println(valueJSON);
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            try {
+
+                //url to POST to
+                URL url = new URL("http://tanapp.tedzhu.org/messages.php");
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+
+
+                // is output buffer
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setRequestProperty("Accept", "application/json");
+
+                Writer writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
+                writer.write(valueJSON);
+
+                writer.close();
+                InputStream inputStream = urlConnection.getInputStream();
+
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String inputLine;
+                while ((inputLine = reader.readLine()) != null)
+                    buffer.append(inputLine + "\n");
+                if (buffer.length() == 0) {
+                    // Stream was empty. No point in parsing.
+                    return null;
+                }
+                JsonResponse = buffer.toString();
+                System.out.println(JsonResponse);
+                //response data
+
+                return JsonResponse;
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return null;
+
+
+
+
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            sendDialog.dismiss();
+        }
+    }
+
 
 }
