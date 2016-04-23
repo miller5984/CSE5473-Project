@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +17,19 @@ import android.widget.EditText;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class MessengerMain extends AppCompatActivity {
 
@@ -80,8 +94,8 @@ public class MessengerMain extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int whichButton) {
 
                             String myInput = input.getText().toString();
-                            //addNewUser newUserSync = new addNewUser();
-                            //newUserSync.execute(myInput);
+                            addNewUser newUserSync = new addNewUser();
+                            newUserSync.execute(myInput);
                         }
                     });
 
@@ -159,8 +173,79 @@ public class MessengerMain extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... params) {
+            String enteredName = params[0];
+            String JsonResponse;
+
+            //form JSON
+            JSONObject JSONEnteredName = new JSONObject();
+            try{
+            JSONEnteredName.put("name",enteredName);
+            JSONEnteredName.put("mac_address","");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            String valueJSON = String.valueOf(JSONEnteredName);
+            System.out.println(valueJSON);
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            try {
+
+                //url to POST to
+                URL url = new URL("http://tanapp.tedzhu.org/devices.php");
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+
+
+                // is output buffer
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setRequestProperty("Accept", "application/json");
+
+                Writer writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
+                writer.write(valueJSON);
+
+                writer.close();
+                InputStream inputStream = urlConnection.getInputStream();
+
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String inputLine;
+                while ((inputLine = reader.readLine()) != null)
+                    buffer.append(inputLine + "\n");
+                if (buffer.length() == 0) {
+                    // Stream was empty. No point in parsing.
+                    return null;
+                }
+                JsonResponse = buffer.toString();
+                System.out.println(JsonResponse);
+                //response data
+
+                    return JsonResponse;
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                       e.printStackTrace();
+                    }
+                }
+            }
             return null;
         }
+
 
         @Override
         protected void onPostExecute(String s) {
