@@ -1,12 +1,15 @@
 package osu.cse.xuan.freqdetector;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SyncAdapterType;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,6 +21,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -185,7 +189,7 @@ public class MessengerMain extends AppCompatActivity {
                 e.printStackTrace();
             }
             String valueJSON = String.valueOf(JSONEnteredName);
-            System.out.println(valueJSON);
+
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -249,7 +253,27 @@ public class MessengerMain extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
-            super.onPostExecute(s);
+
+            try{
+                JSONObject jsonData = new JSONObject(s);
+                String currentID = jsonData.getString("id");
+
+
+                SharedPreferences sharedPreferences;
+                sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MessengerMain.this);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("myDeviceID", currentID);
+                editor.apply();
+
+
+
+            }catch (Throwable t){
+                t.printStackTrace();
+            }
+
+
+
+
         }
 
     }

@@ -16,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -65,6 +66,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Pop extends Activity implements View.OnClickListener {
@@ -84,7 +87,11 @@ public class Pop extends Activity implements View.OnClickListener {
     byte[] encodedBytes = null;
     byte[] decodedBytes = null;
     byte[] decode = null;
+    HashMap<String,String> stringMap = new HashMap<>();
+
     ArrayList<String> stringArray = new ArrayList<>();
+    ArrayList<String> idArray = new ArrayList<>();
+
     String tempMessage;
 
     @Override
@@ -238,7 +245,8 @@ public class Pop extends Activity implements View.OnClickListener {
 
 
                         sendMessage sendSync = new sendMessage();
-                        sendSync.execute(tempMessage);
+                        String idOfRec = idArray.get(position);
+                        sendSync.execute(tempMessage,nameOfRecipient,idOfRec);
 
 
 
@@ -415,9 +423,17 @@ public class Pop extends Activity implements View.OnClickListener {
 
                for(int i = 0; i < jsonData.length(); i++) {
 
-                   String current = jsonData.getJSONObject(i).getString("name");
-                   if(!stringArray.contains(current)) {
-                       stringArray.add(current);
+                   String currentID = jsonData.getJSONObject(i).getString("id");
+                   String currentName = jsonData.getJSONObject(i).getString("name");
+
+                   if(!stringMap.containsKey(currentID))  {
+                       stringMap.put(currentName,currentID);
+                   }
+
+                   if(!stringArray.contains(currentName)){
+                       stringArray.add(currentName);
+                       idArray.add(currentID);
+
                    }
 
                 }
@@ -450,13 +466,24 @@ public class Pop extends Activity implements View.OnClickListener {
 
             //send message
             String enteredMessage = params[0];
+            String enteredName = params[1];
+            String recipID = params[2];
             String JsonResponse;
 
             //form JSON
             JSONObject JSONEnteredMessage = new JSONObject();
             try{
+                //set type
                 JSONEnteredMessage.put("type","TEXT");
+                //set sender ID
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(Pop.this);
+                String myID = pref.getString("myDeviceID",null);
+                JSONEnteredMessage.put("sender_device_id",myID);
 
+                //set recipient ID
+                JSONEnteredMessage.put("recipient_device_id",recipID);
+
+                //set message
                 JSONEnteredMessage.put("data_text",enteredMessage);
 
             } catch (JSONException e) {
