@@ -51,7 +51,6 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
     public static final String MyPrefs = "myprefs";
     public static final String pk = "pkey";
     SharedPreferences sharedPreferences;
-    TextView keyText;
     String checkprefs, keySend, keySend1, first = "25FC941A", second = "50D2AB2E", third = "E8517AFD",
     fourth = "C2492BAF";
     HashMap<String,String> stringMap = new HashMap<>();
@@ -67,7 +66,6 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generate_key);
-        keyText = (TextView)findViewById(R.id.keyText);
         keyGen = (Button)findViewById(R.id.genkey);
         sendKey = (Button)findViewById(R.id.sendKey);
         sharedPreferences = getSharedPreferences(MyPrefs, Context.MODE_PRIVATE);
@@ -76,16 +74,6 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
         //get list of names from server
         requestNames getNames = new requestNames();
         getNames.execute();
-
-        //keyText.setText(checkprefs);
-//        if(checkprefs.equals(null)){
-//            sendKey.setEnabled(false);
-//        }
-//        else{
-//            keyGen.setEnabled(false);
-//            sendKey.setEnabled(true);
-//        }
-
         keyGen.setOnClickListener(this);
         sendKey.setOnClickListener(this);
 
@@ -125,13 +113,8 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
                         sendMessage sendSync = new sendMessage();
                         String idOfRec = idArray.get(position);
                         sendSync.execute(keySend1,nameOfRecipient,idOfRec);
-
-
                     }
                 });
-
-
-
                 break;
             case R.id.genkey:
                 try{
@@ -146,7 +129,6 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
                         hex[j * 2 + 1] = hexArray[i & 0x0F];
                     }
                     String keyValue = String.valueOf(hex);
-                    keyText.setText(keyValue);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("pkey", keyValue);
                     editor.apply();
@@ -157,7 +139,6 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
                 }
                 keyGen.setEnabled(false);
                 break;
-
         }
     }
 
@@ -172,7 +153,6 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
             dialog = ProgressDialog.show(GenerateKey.this, "", "Loading Users...");
         }
 
-
         @Override
         protected String doInBackground(String... args) {
 
@@ -183,22 +163,18 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
                 urlConnection = (HttpURLConnection) url.openConnection();
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
-
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
                 String line;
                 while ((line = reader.readLine()) != null) {
                     result.append(line);
                 }
-
             }catch( Exception e) {
                 e.printStackTrace();
             }
             finally {
                 urlConnection.disconnect();
             }
-
-
             return result.toString();
         }
 
@@ -221,22 +197,13 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
                     if(!stringArray.contains(currentName)){
                         stringArray.add(currentName);
                         idArray.add(currentID);
-
                     }
-
                 }
-
                 dialog.dismiss();
-
             }catch (Throwable t){
                 t.printStackTrace();
             }
-
-
-
         }
-
-
     }
 
 
@@ -337,10 +304,6 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
                 }
             }
             return null;
-
-
-
-
         }
 
         @Override

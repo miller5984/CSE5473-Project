@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">FreqDetector</string>
+    <string name="app_name">Encryption Messenger</string>
     <string name="title_activity_main_">Main_Activity</string>
     <string name="title_activity_messenger_main">MessengerMain</string>
-    <string name="title_activity_recieved_messages">RecievedMessages</string>
-    <string name="title_activity_sent_messages">SentMessages</string>
+    <string name="title_activity_received_messages">Received Messages</string>
+    <string name="title_activity_sent_messages">Sent Messages</string>
 </resources>

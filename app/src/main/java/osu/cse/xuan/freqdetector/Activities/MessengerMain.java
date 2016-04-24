@@ -117,14 +117,6 @@ public class MessengerMain extends AppCompatActivity {
                     });
 
                     alert.show();
-
-
-
-
-
-
-
-
                 }
             });
         }
@@ -141,11 +133,8 @@ public class MessengerMain extends AppCompatActivity {
 
                     checkMessageTask myTask = new checkMessageTask();
                     myTask.execute();
-
-
                 }
             });
-
         }
 
         Button checkForKeys = (Button) findViewById(R.id.checkForKeys);
@@ -158,8 +147,6 @@ public class MessengerMain extends AppCompatActivity {
 
                     checkKeysTask myTask = new checkKeysTask();
                     myTask.execute();
-
-
                 }
             });
         }
@@ -173,11 +160,6 @@ public class MessengerMain extends AppCompatActivity {
                 }
             });
         }
-
-
-
-
-
     }
 
     @Override
@@ -316,19 +298,12 @@ public class MessengerMain extends AppCompatActivity {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("myDeviceID", currentID);
                 editor.apply();
-
-
-
             }catch (Throwable t){
                 t.printStackTrace();
             }
-
-
-
-
         }
-
     }
+
     public class checkMessageTask extends AsyncTask<String, String, String> {
 
         HttpURLConnection urlConnection;
@@ -356,8 +331,6 @@ public class MessengerMain extends AppCompatActivity {
             finally {
                 urlConnection.disconnect();
             }
-
-
             return result.toString();
         }
 
@@ -366,15 +339,15 @@ public class MessengerMain extends AppCompatActivity {
 
 
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MessengerMain.this);
-            String myID = pref.getString("myDeviceID",null);
+            String myID = pref.getString("myDeviceID", null);
 
-            try{
-            JSONArray messages = new JSONArray(s);
+            try {
+                JSONArray messages = new JSONArray(s);
 
-                for(int i = 0; i < messages.length(); i++){
+                for (int i = 0; i < messages.length(); i++) {
                     String currentRecID = messages.getJSONObject(i).getString("recipient_device_id");
 
-                    if(currentRecID.equals(myID)){
+                    if (currentRecID.equals(myID)) {
                         String myMessage = messages.getJSONObject(i).getString("data_text");
                         String messageID = messages.getJSONObject(i).getString("id");
                         String messageType = messages.getJSONObject(i).getString("type");
@@ -382,7 +355,7 @@ public class MessengerMain extends AppCompatActivity {
 
                         /*determine if this object is a key or message. We also check if the message
                         * ID is greater than the MAX ID. If so, we consider it a new message.*/
-                        if(messageType.equals("TEXT")) {
+                        if (messageType.equals("TEXT")) {
 
 
                             if (messageIDint > MAX_ID_REC_ID) {
@@ -397,16 +370,11 @@ public class MessengerMain extends AppCompatActivity {
                         }
                     }
                 }
-
-
-
-        }catch (Throwable t){
-            t.printStackTrace();
+            }
+            catch (Throwable t) {
+                t.printStackTrace();
+            }
         }
-
-
-
-    }
     }
 
     public class checkKeysTask extends AsyncTask<String, String, String> {
@@ -436,8 +404,6 @@ public class MessengerMain extends AppCompatActivity {
             finally {
                 urlConnection.disconnect();
             }
-
-
             return result.toString();
         }
 
@@ -476,15 +442,9 @@ public class MessengerMain extends AppCompatActivity {
                         }
                     }
                 }
-
-
-
             }catch (Throwable t){
                 t.printStackTrace();
             }
-
-
-
         }
     }
 

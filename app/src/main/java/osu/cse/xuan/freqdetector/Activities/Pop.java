@@ -58,18 +58,14 @@ public class Pop extends Activity implements View.OnClickListener {
     Button record, send, play, stop, close;
     TextView boxMessage;
     private MediaRecorder myAudioRecorder;
-    private String outputFile = null;
     SecretKeySpec sks = null;
     private GoogleApiClient client;
     private String key;
     SharedPreferences sharedPreferences;
     public static final String MyPrefs = "myprefs";
-    public static final String pkey = "pkey";
+    public static final String pk = "pkey";
     byte[] convert;
     byte[] encodedBytes = null;
-    byte[] decodedBytes = null;
-    byte[] decode = null;
-    byte[] _iv = new byte[16];
     HashMap<String,String> stringMap = new HashMap<>();
 
     public ArrayList<String> stringArray = new ArrayList<>();
@@ -88,33 +84,14 @@ public class Pop extends Activity implements View.OnClickListener {
 
 
         sharedPreferences = getSharedPreferences(MyPrefs, Context.MODE_PRIVATE);
-        key = sharedPreferences.getString("pkey", null);
+        key = sharedPreferences.getString(pk, null);
         record = (Button) findViewById(R.id.record);
-        stop = (Button) findViewById(R.id.stop);
         send = (Button) findViewById(R.id.send);
-        play = (Button) findViewById(R.id.play);
         close = (Button) findViewById(R.id.close);
         boxMessage = (TextView) findViewById(R.id.boxmessage);
 
-        stop.setEnabled(false);
-        play.setEnabled(false);
-
-//        final File folder = new File(getApplicationContext().getExternalFilesDir(null) + "/AudioFiles");
-//        System.out.println(folder.toString());
-//        //check if directory exists
-//        boolean val = false;
-//        if (!folder.exists()) {
-//            val = folder.mkdir();
-//        }
-//
-//        String fileName =  "recording.3gp";
-
-
-
-
         record.setOnClickListener(this);
-        stop.setOnClickListener(this);
-        play.setOnClickListener(this);
+
         send.setOnClickListener(this);
         close.setOnClickListener(this);
 
@@ -123,10 +100,6 @@ public class Pop extends Activity implements View.OnClickListener {
         myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
 
-        //outputFile = folder + "/" + fileName;
-        //outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
-        //System.out.println(outputFile);
-        //myAudioRecorder.setOutputFile(outputFile);
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         int width = dm.widthPixels;
@@ -144,18 +117,6 @@ public class Pop extends Activity implements View.OnClickListener {
 
         switch (v.getId()) {
             case R.id.record:
-//                Toast.makeText(getApplicationContext(), "You are recording!",
-//                        Toast.LENGTH_SHORT).show();
-//                try {
-//                    myAudioRecorder.prepare();
-//                    myAudioRecorder.start();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                } catch (IllegalStateException e) {
-//                    e.printStackTrace();
-//                }
-//                record.setEnabled(false);
-//                stop.setEnabled(true);
 
                 android.support.v7.app.AlertDialog.Builder alert = new android.support.v7.app.AlertDialog.Builder(Pop.this);
                 alert.setTitle("Message");
@@ -176,27 +137,11 @@ public class Pop extends Activity implements View.OnClickListener {
                     }
                 });
                 alert.show();
-
-
-
                 break;
-//            case R.id.stop:
-//                Toast.makeText(getApplicationContext(), "You have made your recording!",
-//                        Toast.LENGTH_SHORT).show();
-//                myAudioRecorder.stop();
-//                myAudioRecorder.release();
-//                myAudioRecorder = null;
-//
-//                stop.setEnabled(false);
-//                play.setEnabled(true);
-//
-//                break;
 
             case R.id.send:
 
                 key = sharedPreferences.getString("pkey", null);
-                final IvParameterSpec ivSpec = new IvParameterSpec(_iv);
-
                 convert = new byte[key.length() / 2];
                 for (int i = 0; i < key.length(); i += 2) {
                     convert[i / 2] = (byte) ((Character.digit(key.charAt(i), 16) << 4)
@@ -238,58 +183,11 @@ public class Pop extends Activity implements View.OnClickListener {
                         sendMessage sendSync = new sendMessage();
                         String idOfRec = idArray.get(position);
                         sendSync.execute(sendMessage,nameOfRecipient,idOfRec);
-
-//                            FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp"));
-//                            fos.write(encodedBytes);
-//                            fos.close();
-//
-//                            File part = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/encrypted.3gp");
-//                            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(part));
-//                            decode = new byte[(int) part.length()];
-//                            buf.read(decode);
-//                            c = Cipher.getInstance("AES");
-//                            c.init(Cipher.DECRYPT_MODE, sks);
-//                            decodedBytes = c.doFinal(decode);
-//                            FileOutputStream fos1 = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/fixed.3gp"));
-//
-//                            fos1.write(decodedBytes);
-//                            fos1.close();
-
                     }
                 });
-
-
-
                 break;
-
-//            case R.id.play:
-//                MediaPlayer m = new MediaPlayer();
-//                try {
-//                    m.setDataSource(outputFile);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                try {
-//                    m.prepare();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                m.start();
-//                Toast.makeText(getApplicationContext(), "Playing Audio",
-//                        Toast.LENGTH_SHORT).show();
-//                break;
             case R.id.close:
-//                MediaPlayer mediaPlayer = new MediaPlayer();
-//                String fpath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/fixed.3gp";
-//                try {
-//                    mediaPlayer.setDataSource(fpath);
-//                    mediaPlayer.prepare();
-//                    mediaPlayer.start();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
                 finish();
-
         }
     }
 
@@ -333,11 +231,6 @@ public class Pop extends Activity implements View.OnClickListener {
         client.disconnect();
     }
 
-
-
-
-
-
     public class requestNames extends AsyncTask<String, String, String> {
 
         HttpURLConnection urlConnection;
@@ -347,7 +240,6 @@ public class Pop extends Activity implements View.OnClickListener {
         protected void onPreExecute() {
             dialog = ProgressDialog.show(Pop.this, "", "Loading Users...");
         }
-
 
         @Override
         protected String doInBackground(String... args) {
@@ -373,8 +265,6 @@ public class Pop extends Activity implements View.OnClickListener {
             finally {
                 urlConnection.disconnect();
             }
-
-
             return result.toString();
         }
 
@@ -407,13 +297,8 @@ public class Pop extends Activity implements View.OnClickListener {
             }catch (Throwable t){
                 t.printStackTrace();
             }
-
-
-
         }
-
-
-        }
+    }
 
 
     public class sendMessage extends AsyncTask<String,String,String>{
@@ -513,10 +398,6 @@ public class Pop extends Activity implements View.OnClickListener {
                 }
             }
             return null;
-
-
-
-
         }
 
         @Override
@@ -526,6 +407,4 @@ public class Pop extends Activity implements View.OnClickListener {
             sendDialog.dismiss();
         }
     }
-
-
 }

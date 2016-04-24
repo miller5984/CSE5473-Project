@@ -35,13 +35,14 @@
 
         <activity
             android:name=".Activities.ReceivedMessages"
-            android:label="@string/title_activity_recieved_messages"
+            android:label="@string/title_activity_received_messages"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".Activities.SentMessages"
             android:label="@string/title_activity_sent_messages"
             android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".Activities.GenerateKey">
+        <activity android:name=".Activities.GenerateKey"
+                  android:label="Generate Key">
         </activity>
         <activity android:name=".retrievedKeys"></activity>
     </application>
