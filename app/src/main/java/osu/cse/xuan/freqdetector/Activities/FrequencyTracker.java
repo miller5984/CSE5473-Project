@@ -1,4 +1,4 @@
-package osu.cse.xuan.freqdetector;
+package osu.cse.xuan.freqdetector.Activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import be.tarsos.dsp.io.android.AudioDispatcherFactory;
 import be.tarsos.dsp.pitch.PitchDetectionHandler;
 import be.tarsos.dsp.pitch.PitchDetectionResult;
 import be.tarsos.dsp.pitch.PitchProcessor;
+import osu.cse.xuan.freqdetector.R;
 
 public class FrequencyTracker extends AppCompatActivity {
 

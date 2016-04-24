@@ -13,16 +13,16 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MessengerMain">
+        <activity android:name=".Activities.MessengerMain">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".Pop"/>
+        <activity android:name=".Activities.Pop"/>
         <activity
-            android:name=".FrequencyTracker"
+            android:name=".Activities.FrequencyTracker"
             android:label="@string/title_activity_messenger_main"
             android:theme="@style/AppTheme.NoActionBar"/>
         <!--
@@ -34,14 +34,14 @@
             android:value="@integer/google_play_services_version"/>
 
         <activity
-            android:name=".ReceivedMessages"
+            android:name=".Activities.ReceivedMessages"
             android:label="@string/title_activity_recieved_messages"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".SentMessages"
+            android:name=".Activities.SentMessages"
             android:label="@string/title_activity_sent_messages"
             android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".GenerateKey">
+        <activity android:name=".Activities.GenerateKey">
         </activity>
     </application>
 
