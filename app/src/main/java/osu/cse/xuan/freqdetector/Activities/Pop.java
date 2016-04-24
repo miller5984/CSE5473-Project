@@ -1,4 +1,4 @@
-package osu.cse.xuan.freqdetector;
+package osu.cse.xuan.freqdetector.Activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -7,15 +7,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -28,16 +23,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.google.android.gms.appdatasearch.GetRecentContextCall;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -49,12 +39,6 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,13 +46,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+
+import osu.cse.xuan.freqdetector.R;
 
 
 public class Pop extends Activity implements View.OnClickListener {

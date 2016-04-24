@@ -1,18 +1,14 @@
-package osu.cse.xuan.freqdetector;
+package osu.cse.xuan.freqdetector.Activities;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SyncAdapterType;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,6 +33,10 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import osu.cse.xuan.freqdetector.Core.MessageTest;
+import osu.cse.xuan.freqdetector.R;
+import osu.cse.xuan.freqdetector.retrievedKeys;
+
 public class MessengerMain extends AppCompatActivity {
 
      private int MAX_ID_REC_ID;
@@ -47,6 +47,8 @@ public class MessengerMain extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger_main);
+
+        MessageTest.runTest();
 
         Button received = (Button) findViewById(R.id.receivedmessages);
         if(received != null) {

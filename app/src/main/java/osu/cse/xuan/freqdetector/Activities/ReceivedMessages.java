@@ -1,4 +1,4 @@
-package osu.cse.xuan.freqdetector;
+package osu.cse.xuan.freqdetector.Activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -28,6 +28,8 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
+import osu.cse.xuan.freqdetector.R;
 
 
 public class ReceivedMessages extends AppCompatActivity {

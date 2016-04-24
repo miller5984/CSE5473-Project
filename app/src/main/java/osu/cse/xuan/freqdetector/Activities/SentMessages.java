@@ -1,4 +1,4 @@
-package osu.cse.xuan.freqdetector;
+package osu.cse.xuan.freqdetector.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;

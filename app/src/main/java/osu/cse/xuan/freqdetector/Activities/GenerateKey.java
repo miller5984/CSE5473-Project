@@ -1,4 +1,4 @@
-package osu.cse.xuan.freqdetector;
+package osu.cse.xuan.freqdetector.Activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -39,7 +38,8 @@ import java.util.HashMap;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+
+import osu.cse.xuan.freqdetector.R;
 
 public class GenerateKey extends AppCompatActivity implements View.OnClickListener{
 
