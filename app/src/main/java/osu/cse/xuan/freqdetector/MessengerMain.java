@@ -162,6 +162,16 @@ public class MessengerMain extends AppCompatActivity {
             });
         }
 
+        Button viewMyKeys = (Button) findViewById(R.id.recKeys);
+        if(viewMyKeys != null){
+            viewMyKeys.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(MessengerMain.this, retrievedKeys.class));
+                }
+            });
+        }
+
 
 
 
@@ -455,7 +465,7 @@ public class MessengerMain extends AppCompatActivity {
                         if(messageType.equals("KEY")){
 
                             if (messageIDint > MAX_KEYS_ID) {
-                                //ReceivedMessages.myList.add(myMessage);
+                                retrievedKeys.myKeysList.add(myMessage);
                                 System.out.println("My key: " + myMessage);
                                 MAX_KEYS_ID = messageIDint;
 
