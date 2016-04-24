@@ -91,8 +91,8 @@ public class Pop extends Activity implements View.OnClickListener {
     byte[] _iv = new byte[16];
     HashMap<String,String> stringMap = new HashMap<>();
 
-    ArrayList<String> stringArray = new ArrayList<>();
-    ArrayList<String> idArray = new ArrayList<>();
+    public ArrayList<String> stringArray = new ArrayList<>();
+    public ArrayList<String> idArray = new ArrayList<>();
 
     String tempMessage, sendMessage;
 

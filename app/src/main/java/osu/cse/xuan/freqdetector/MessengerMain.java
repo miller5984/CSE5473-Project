@@ -40,7 +40,7 @@ import java.net.URL;
 public class MessengerMain extends AppCompatActivity {
 
      private int MAX_ID_REC_ID;
-
+     private int MAX_KEYS_ID;
     private GoogleApiClient client;
 
     @Override
@@ -127,6 +127,7 @@ public class MessengerMain extends AppCompatActivity {
             });
         }
 
+        //check messages button
         Button checkForMessage = (Button) findViewById(R.id.checkMessages);
         if(checkForMessage != null) {
             checkForMessage.setOnClickListener(new View.OnClickListener() {
@@ -145,7 +146,21 @@ public class MessengerMain extends AppCompatActivity {
 
         }
 
+        Button checkForKeys = (Button) findViewById(R.id.checkForKeys);
+        if(checkForKeys != null){
+            checkForKeys.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getApplicationContext(), "Checking for new keys...",
+                            Toast.LENGTH_SHORT).show();
 
+                    checkKeysTask myTask = new checkKeysTask();
+                    myTask.execute();
+
+
+                }
+            });
+        }
 
 
 
@@ -350,13 +365,23 @@ public class MessengerMain extends AppCompatActivity {
                     if(currentRecID.equals(myID)){
                         String myMessage = messages.getJSONObject(i).getString("data_text");
                         String messageID = messages.getJSONObject(i).getString("id");
-
+                        String messageType = messages.getJSONObject(i).getString("type");
                         int messageIDint = Integer.parseInt(messageID);
 
-                        if(messageIDint > MAX_ID_REC_ID) {
-                            ReceivedMessages.myList.add(myMessage);
-                            MAX_ID_REC_ID = messageIDint;
-                            System.out.println("messageID: " + messageIDint + ", maxID: " + MAX_ID_REC_ID);
+                        /*determine if this object is a key or message. We also check if the message
+                        * ID is greater than the MAX ID. If so, we consider it a new message.*/
+                        if(messageType.equals("TEXT")) {
+
+
+                            if (messageIDint > MAX_ID_REC_ID) {
+
+                                //Add message to list in ReceivedMessages
+
+                                ReceivedMessages.myList.add(myMessage);
+                                MAX_ID_REC_ID = messageIDint;
+
+                            }
+
                         }
                     }
                 }
@@ -371,6 +396,96 @@ public class MessengerMain extends AppCompatActivity {
 
     }
     }
+
+    public class checkKeysTask extends AsyncTask<String, String, String> {
+
+        HttpURLConnection urlConnection;
+
+        @Override
+        protected String doInBackground(String... params) {
+            StringBuilder result = new StringBuilder();
+
+            try {
+                URL url = new URL("http://tanapp.tedzhu.org/messages.php");
+                urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+
+            }catch( Exception e) {
+                e.printStackTrace();
+            }
+            finally {
+                urlConnection.disconnect();
+            }
+
+
+            return result.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
+
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MessengerMain.this);
+            String myID = pref.getString("myDeviceID",null);
+
+            try{
+                JSONArray messages = new JSONArray(s);
+
+                for(int i = 0; i < messages.length(); i++){
+                    String currentRecID = messages.getJSONObject(i).getString("recipient_device_id");
+
+                    if(currentRecID.equals(myID)){
+                        String myMessage = messages.getJSONObject(i).getString("data_text");
+                        String messageID = messages.getJSONObject(i).getString("id");
+                        String messageType = messages.getJSONObject(i).getString("type");
+                        int messageIDint = Integer.parseInt(messageID);
+
+                        /*determine if this object is a key or message. We also check if the message
+                        * ID is greater than the MAX ID. If so, we consider it a new message.*/
+
+
+                        if(messageType.equals("KEY")){
+
+                            if (messageIDint > MAX_KEYS_ID) {
+                                //ReceivedMessages.myList.add(myMessage);
+                                System.out.println("My key: " + myMessage);
+                                MAX_KEYS_ID = messageIDint;
+
+                            }
+
+                        }
+                    }
+                }
+
+
+
+            }catch (Throwable t){
+                t.printStackTrace();
+            }
+
+
+
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
