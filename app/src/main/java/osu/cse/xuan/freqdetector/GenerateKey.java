@@ -52,8 +52,8 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
     public static final String pk = "pkey";
     SharedPreferences sharedPreferences;
     TextView keyText;
-    String checkprefs, keySend, keySend1, first = "25fc941a", second = "50d2ab2e", third = "e8517afd",
-    fourth = "c2492baf";
+    String checkprefs, keySend, keySend1, first = "25FC941A", second = "50D2AB2E", third = "E8517AFD",
+    fourth = "C2492BAF";
     HashMap<String,String> stringMap = new HashMap<>();
 
     public ArrayList<String> stringArray = new ArrayList<>();
@@ -124,7 +124,7 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
                         dialog.dismiss();
                         sendMessage sendSync = new sendMessage();
                         String idOfRec = idArray.get(position);
-                        sendSync.execute(keySend,nameOfRecipient,idOfRec);
+                        sendSync.execute(keySend1,nameOfRecipient,idOfRec);
 
 
                     }

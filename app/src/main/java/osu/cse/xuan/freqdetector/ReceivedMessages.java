@@ -16,8 +16,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +36,7 @@ public class ReceivedMessages extends AppCompatActivity {
     private String decrypt;
     private static final String MyPrefs = "myprefs", pk = "pkey";
     SharedPreferences sharedPreferences;
-    byte[] convert, decodedBytes;
+    byte[] convert, decodedBytes, decodedMessage;
     ListView recList;
     private String selected, newMessage;
     SecretKeySpec sks;
@@ -46,7 +48,7 @@ public class ReceivedMessages extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         sharedPreferences = getSharedPreferences(MyPrefs, Context.MODE_PRIVATE);
-        decrypt = sharedPreferences.getString(pk, null);
+
 
         recList = (ListView) findViewById(R.id.receivedList);
 
@@ -54,7 +56,9 @@ public class ReceivedMessages extends AppCompatActivity {
         recList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selected = recList.getItemAtPosition(position).toString();
+                decrypt = sharedPreferences.getString(pk, null);
+                selected = ((TextView)view).getText().toString();
+                decodedMessage = Base64.decode(selected, Base64.DEFAULT);
                 convert = new byte[decrypt.length() / 2];
                 for (int i = 0; i < decrypt.length(); i += 2) {
                     convert[i / 2] = (byte) ((Character.digit(decrypt.charAt(i), 16) << 4)
@@ -64,9 +68,11 @@ public class ReceivedMessages extends AppCompatActivity {
                 try {
                     Cipher c = Cipher.getInstance("AES");
                     c.init(Cipher.DECRYPT_MODE, sks);
-                    decodedBytes = c.doFinal(selected.getBytes());
-                    newMessage = Base64.encodeToString(decodedBytes, Base64.DEFAULT);
+                    decodedBytes = c.doFinal(decodedMessage);
+                    newMessage = new String(decodedBytes, StandardCharsets.UTF_8);
                     ((TextView)view).setText(newMessage);
+                    selected = "";
+                    decodedMessage = null;
                 } catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
                 } catch (InvalidKeyException e) {
