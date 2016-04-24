@@ -49,7 +49,7 @@ public class retrievedKeys extends AppCompatActivity {
                 keySave = key.substring(0,1) + key.substring(9,13) + key.substring(21,33) + key.substring(41,54)+
                         key.substring(62,64);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(keySave, pk);
+                editor.putString(pk, keySave);
                 editor.apply();
                 Toast.makeText(retrievedKeys.this, "Key Saved", Toast.LENGTH_SHORT).show();
             }
