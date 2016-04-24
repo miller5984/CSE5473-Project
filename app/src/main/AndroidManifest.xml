@@ -43,6 +43,7 @@
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".Activities.GenerateKey">
         </activity>
+        <activity android:name=".retrievedKeys"></activity>
     </application>
 
 </manifest>
