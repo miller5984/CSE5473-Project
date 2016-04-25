@@ -29,8 +29,8 @@ public class MessageTest {
             new Runnable() {
                 @Override
                 public void run() {
-                    Device one = Device.findById(1);
-                    Log.v("dbug", one.name);
+                    //Device one = Device.findById(1);
+                    //Log.v("dbug", one.name);
                 }
             }
         );

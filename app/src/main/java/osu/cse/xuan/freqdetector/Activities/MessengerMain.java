@@ -48,7 +48,7 @@ public class MessengerMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger_main);
 
-        MessageTest.runTest();
+        //MessageTest.runTest();
 
         Button received = (Button) findViewById(R.id.receivedmessages);
         if(received != null) {
