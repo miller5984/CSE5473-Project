@@ -1,4 +1,4 @@
-package osu.cse.xuan.freqdetector.Activities;
+package osu.cse.networksecurity.tanapp.Activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,9 +33,8 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import osu.cse.xuan.freqdetector.Core.MessageTest;
-import osu.cse.xuan.freqdetector.R;
-import osu.cse.xuan.freqdetector.retrievedKeys;
+import osu.cse.networksecurity.tanapp.R;
+import osu.cse.networksecurity.tanapp.retrievedKeys;
 
 public class MessengerMain extends AppCompatActivity {
 

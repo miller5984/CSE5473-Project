@@ -1,21 +1,35 @@
-package osu.cse.xuan.freqdetector.Activities;
+package osu.cse.networksecurity.tanapp.Activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import javax.crypto.Cipher;
+
+import javax.crypto.spec.SecretKeySpec;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,64 +45,119 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import osu.cse.networksecurity.tanapp.R;
 
-import osu.cse.xuan.freqdetector.R;
 
-public class GenerateKey extends AppCompatActivity implements View.OnClickListener{
+public class Pop extends Activity implements View.OnClickListener {
 
-    byte[] key;
-    char[] hex;
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    Button keyGen;
-    Button sendKey;
+
+    Button record, send, play, stop, close;
+    TextView boxMessage;
+    private MediaRecorder myAudioRecorder;
+    SecretKeySpec sks = null;
+    private GoogleApiClient client;
+    private String key;
+    SharedPreferences sharedPreferences;
     public static final String MyPrefs = "myprefs";
     public static final String pk = "pkey";
-    SharedPreferences sharedPreferences;
-    String checkprefs, keySend, keySend1, first = "25FC941A", second = "50D2AB2E", third = "E8517AFD",
-    fourth = "C2492BAF";
+    byte[] convert;
+    byte[] encodedBytes = null;
     HashMap<String,String> stringMap = new HashMap<>();
 
     public ArrayList<String> stringArray = new ArrayList<>();
     public ArrayList<String> idArray = new ArrayList<>();
 
-
-
+    String tempMessage, sendMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_generate_key);
-        keyGen = (Button)findViewById(R.id.genkey);
-        sendKey = (Button)findViewById(R.id.sendKey);
-        sharedPreferences = getSharedPreferences(MyPrefs, Context.MODE_PRIVATE);
-        key = new byte[16];
-        checkprefs = sharedPreferences.getString(pk, null);
+        setContentView(R.layout.popwindow);
+
         //get list of names from server
         requestNames getNames = new requestNames();
         getNames.execute();
-        keyGen.setOnClickListener(this);
-        sendKey.setOnClickListener(this);
 
+
+        sharedPreferences = getSharedPreferences(MyPrefs, Context.MODE_PRIVATE);
+        key = sharedPreferences.getString(pk, null);
+        record = (Button) findViewById(R.id.record);
+        send = (Button) findViewById(R.id.send);
+        close = (Button) findViewById(R.id.close);
+        boxMessage = (TextView) findViewById(R.id.boxmessage);
+
+        record.setOnClickListener(this);
+
+        send.setOnClickListener(this);
+        close.setOnClickListener(this);
+
+//        myAudioRecorder = new MediaRecorder();
+//        myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+//        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+//        myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        getWindow().setLayout((int) (width * .8), (int) (height * .25));
+
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
-    public void onClick(View v){
-        switch (v.getId()){
-            case R.id.sendKey:
-                keySend = sharedPreferences.getString("pkey", null);
-                keySend1 = keySend.substring(0,1) + first + keySend.substring(1,5) + second
-                        + keySend.substring(5, 17) + third + keySend.substring(17, 30) + fourth
-                        + keySend.substring(30, 32);
+    public void onClick(View v) {
 
-                //Send logic here
+        switch (v.getId()) {
+            case R.id.record:
+
+                android.support.v7.app.AlertDialog.Builder alert = new android.support.v7.app.AlertDialog.Builder(Pop.this);
+                alert.setTitle("Message");
+                alert.setMessage("Enter your Message:");
+                // Set an EditText view to get user input
+                final EditText input = new EditText(Pop.this);
+                alert.setView(input);
+
+                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        String message = input.getText().toString();
+                        tempMessage = message;
+                    }
+                });
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        dialog.dismiss();
+                    }
+                });
+                alert.show();
+                break;
+
+            case R.id.send:
+
+                key = sharedPreferences.getString("pkey", null);
+                convert = new byte[key.length() / 2];
+                for (int i = 0; i < key.length(); i += 2) {
+                    convert[i / 2] = (byte) ((Character.digit(key.charAt(i), 16) << 4)
+                            + Character.digit(key.charAt(i + 1), 16));
+                }
+                sks = new SecretKeySpec(convert, "AES");
+
+                /* Encrypt portion */
+
+                try {
+                    Cipher c = Cipher.getInstance("AES");
+                    c.init(Cipher.ENCRYPT_MODE, sks);
+                    encodedBytes = c.doFinal(tempMessage.getBytes());
+                    sendMessage = Base64.encodeToString(encodedBytes, Base64.DEFAULT);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Select Recipient");
@@ -112,36 +181,54 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
                         dialog.dismiss();
                         sendMessage sendSync = new sendMessage();
                         String idOfRec = idArray.get(position);
-                        sendSync.execute(keySend1,nameOfRecipient,idOfRec);
+                        sendSync.execute(sendMessage,nameOfRecipient,idOfRec);
                     }
                 });
                 break;
-            case R.id.genkey:
-                try{
-                    KeyGenerator kg = KeyGenerator.getInstance("AES");
-                    kg.init(128, new SecureRandom());
-                    SecretKey keyGen = kg.generateKey();
-                    key = keyGen.getEncoded();
-                    hex = new char[key.length * 2];
-                    for ( int j = 0; j < key.length; j++ ) {
-                        int i = key[j] & 0xFF;
-                        hex[j * 2] = hexArray[i >>> 4];
-                        hex[j * 2 + 1] = hexArray[i & 0x0F];
-                    }
-                    String keyValue = String.valueOf(hex);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("pkey", keyValue);
-                    editor.apply();
-                    Toast.makeText(GenerateKey.this, "Key generated", Toast.LENGTH_SHORT).show();
-
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                }
-                keyGen.setEnabled(false);
-                break;
+            case R.id.close:
+                finish();
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Pop Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://osu.cse.xuan.freqdetector/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Pop Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://osu.cse.xuan.freqdetector/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
+    }
 
     public class requestNames extends AsyncTask<String, String, String> {
 
@@ -150,7 +237,7 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
         ProgressDialog dialog;
         @Override
         protected void onPreExecute() {
-            dialog = ProgressDialog.show(GenerateKey.this, "", "Loading Users...");
+            dialog = ProgressDialog.show(Pop.this, "", "Loading Users...");
         }
 
         @Override
@@ -163,12 +250,14 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
                 urlConnection = (HttpURLConnection) url.openConnection();
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
+
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
                 String line;
                 while ((line = reader.readLine()) != null) {
                     result.append(line);
                 }
+
             }catch( Exception e) {
                 e.printStackTrace();
             }
@@ -184,22 +273,26 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
             try{
                 JSONArray jsonData = new JSONArray(result);
 
-                for(int i = 0; i < jsonData.length(); i++) {
+               for(int i = 0; i < jsonData.length(); i++) {
 
-                    String currentID = jsonData.getJSONObject(i).getString("id");
-                    String currentName = jsonData.getJSONObject(i).getString("name");
+                   String currentID = jsonData.getJSONObject(i).getString("id");
+                   String currentName = jsonData.getJSONObject(i).getString("name");
 
 
-                    if(!stringMap.containsKey(currentID))  {
-                        stringMap.put(currentName,currentID);
-                    }
+                   if(!stringMap.containsKey(currentID))  {
+                       stringMap.put(currentName,currentID);
+                   }
 
-                    if(!stringArray.contains(currentName)){
-                        stringArray.add(currentName);
-                        idArray.add(currentID);
-                    }
+                   if(!stringArray.contains(currentName)){
+                       stringArray.add(currentName);
+                       idArray.add(currentID);
+
+                   }
+
                 }
+
                 dialog.dismiss();
+
             }catch (Throwable t){
                 t.printStackTrace();
             }
@@ -213,7 +306,7 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
 
         @Override
         protected void onPreExecute() {
-            sendDialog = ProgressDialog.show(GenerateKey.this, "", "Sending Key...");
+            sendDialog = ProgressDialog.show(Pop.this, "", "Sending Message...");
         }
 
         @Override
@@ -229,9 +322,9 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
             JSONObject JSONEnteredMessage = new JSONObject();
             try{
                 //set type
-                JSONEnteredMessage.put("type","KEY");
+                JSONEnteredMessage.put("type","TEXT");
                 //set sender ID
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(GenerateKey.this);
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(Pop.this);
                 String myID = pref.getString("myDeviceID",null);
                 JSONEnteredMessage.put("sender_device_id",myID);
 
@@ -313,12 +406,4 @@ public class GenerateKey extends AppCompatActivity implements View.OnClickListen
             sendDialog.dismiss();
         }
     }
-
-
-
-
-
-
-
-
 }

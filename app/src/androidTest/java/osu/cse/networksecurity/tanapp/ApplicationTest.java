@@ -1,4 +1,4 @@
-package osu.cse.xuan.freqdetector;
+package osu.cse.networksecurity.tanapp;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -1,9 +1,4 @@
-package osu.cse.xuan.freqdetector.Core;
-
-import android.util.Log;
-
-import org.json.JSONArray;
-import org.json.JSONException;
+package osu.cse.networksecurity.tanapp.Core;
 
 /**
  * Created by Ted Zhu on 4/23/2016.

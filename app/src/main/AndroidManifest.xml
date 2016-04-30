@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="osu.cse.xuan.freqdetector"
+<manifest package="osu.cse.networksecurity.tanapp"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -13,16 +13,16 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.MessengerMain">
+        <activity android:name="osu.cse.networksecurity.tanapp.Activities.MessengerMain">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.Pop"/>
+        <activity android:name="osu.cse.networksecurity.tanapp.Activities.Pop"/>
         <activity
-            android:name=".Activities.FrequencyTracker"
+            android:name="osu.cse.networksecurity.tanapp.Activities.FrequencyTracker"
             android:label="@string/title_activity_messenger_main"
             android:theme="@style/AppTheme.NoActionBar"/>
         <!--
@@ -34,17 +34,17 @@
             android:value="@integer/google_play_services_version"/>
 
         <activity
-            android:name=".Activities.ReceivedMessages"
+            android:name="osu.cse.networksecurity.tanapp.Activities.ReceivedMessages"
             android:label="@string/title_activity_received_messages"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".Activities.SentMessages"
+            android:name="osu.cse.networksecurity.tanapp.Activities.SentMessages"
             android:label="@string/title_activity_sent_messages"
             android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".Activities.GenerateKey"
+        <activity android:name="osu.cse.networksecurity.tanapp.Activities.GenerateKey"
                   android:label="Generate Key">
         </activity>
-        <activity android:name=".retrievedKeys"></activity>
+        <activity android:name="osu.cse.networksecurity.tanapp.retrievedKeys"></activity>
     </application>
 
 </manifest>

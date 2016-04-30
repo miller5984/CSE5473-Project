@@ -1,4 +1,4 @@
-package osu.cse.xuan.freqdetector.Core;
+package osu.cse.networksecurity.tanapp.Core;
 
 import android.util.Log;
 

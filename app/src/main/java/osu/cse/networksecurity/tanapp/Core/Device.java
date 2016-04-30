@@ -1,13 +1,12 @@
-package osu.cse.xuan.freqdetector.Core;
+package osu.cse.networksecurity.tanapp.Core;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import osu.cse.xuan.freqdetector.Utility.Dbug;
+import osu.cse.networksecurity.tanapp.Utility.Dbug;
 
 /**
  * Created by Ted Zhu on 4/23/2016.
